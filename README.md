@@ -12,5 +12,3 @@ també disposa d'un thread que espera entrades del terminal per a llistar els cl
 Client: es connecta amb el servidor al port i host donats.
 
 Commons: disposa d'un parell de funcions les quals són usades per totes les classes anteriors
-
-proba
