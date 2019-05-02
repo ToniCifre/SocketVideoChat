@@ -6,7 +6,7 @@ import TCPSercer
 
 
 class Main:
-    #FSDFGSDFGggfndsds
+    #FSDFGSDFGggfndsdssds
 
     def __init__(self):
         self.servidors = {}
