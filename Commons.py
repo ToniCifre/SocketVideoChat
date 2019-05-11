@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import time
 
 def mostrarToast(titol, msg):
     popup = Tk()
@@ -60,3 +59,32 @@ def toastGetHostPort():
     global host
     global port
     return host, port
+
+
+def enviaCanal(finestra, c):
+    global canal
+    canal = c.get()
+    if len(canal) > 0:
+        finestra.quit()
+        finestra.destroy()
+    else:
+        mostrarToast("ERROR", "El canal no pot estar buit")
+
+
+def toastNewCanal() -> StringVar:
+    arrel = Tk()
+    arrel.resizable(width=False, height=False)
+    arrel.title("Init Servidor")
+
+    # CANAL
+    Label(arrel, text="Nou canal: ").grid(column=1, row=1, columnspan=3, sticky=E)
+    host_entry = Entry(arrel, width=35)
+    host_entry.grid(column=4, row=1, pady=10, padx=5, sticky=(W, E))
+
+    # Botón
+    Button(arrel, text="Crear", command=lambda: enviaCanal(arrel, host_entry))\
+        .grid(column=1, row=5,columnspan=8,sticky=(W, E))
+
+    arrel.mainloop()
+    global canal
+    return canal

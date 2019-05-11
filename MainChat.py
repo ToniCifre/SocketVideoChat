@@ -38,7 +38,7 @@ class Main:
         Thread(target=server.inici).start()
 
     def newClient(self, event=None):
-        Thread(target=TCPClient.Client().inici()).start()
+        Thread(target=TCPClient.Client()).start()
 
     def on_closing(self, event=None):
         for server in self.servidors:

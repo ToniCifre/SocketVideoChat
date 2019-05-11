@@ -1,4 +1,4 @@
-README
+# **README**
 
 
 Per executar el projecte S'ha d'introduir la seguent comanda: python3.7 ./MainChat.py

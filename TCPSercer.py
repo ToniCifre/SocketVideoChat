@@ -10,6 +10,7 @@ class Servidor():
         self.ADDR = param
         self.SERVER = socket(AF_INET, SOCK_STREAM)
         self.clients = {}
+        self.canals = {}
         self.addresses = {}
         self.SERVER.bind(self.ADDR)
 
@@ -47,20 +48,31 @@ class Servidor():
         # Funcio que escolta a un unic client, Primes demana el nom i el guarda en un array ce clients amb el seu nom
         name = "quit"
         try:
-            self.enviar(client, "s-info:~: Introdueix el teu nom per començar!")
+            self.enviar(client, "s-info:~:Introdueix el teu nom per començar!")
             name = client.recv(1024).decode("utf8")
             if name != 'quit':
                 self.enviar(client,
-                            's-info:~: Bones %s!, si vols sortir del char escriu {quit} o talca la finestra.' % name)
+                            's-info:~:Bones %s!, si vols sortir del char escriu {quit} o talca la finestra.' % name)
                 self.broadcast("%s s'ha unit al chat!" % name)
                 self.clients[client] = name
+                self.canals[client] = 'general'
                 while True:
                     try:
                         msg = client.recv(1024).decode("utf-8")
                         if len(msg) == 0:
                             break
-                        print("s %s- " % name, msg)
-                        self.broadcast(msg, name + ":~: ")
+                        tag = msg.split(':~:')
+                        if len(tag) >= 2:
+                            if tag[0] == '_NEW_CANAL_':
+                                print("new Canal: %s" % tag[1])
+                                self.broadcast(tag[1], "new_canal:~:")
+                            elif tag[0 == '_SET_CANAL_']:
+                                self.sendCanal("En %s s'ha cambiat al canal %s." % (name, tag[1]), self.canals[client])
+                                self.canals[client] = tag[1]
+                                self.sendCanal("En %s s'ha unit al canal." % name, tag[1])
+                        else:
+                            print("s canal: %s - %s: " % (self.canals[client], name), msg)
+                            self.sendCanal(msg, self.canals[client], name + ":~: ")
                     except OSError:
                         break
         except OSError:
@@ -69,11 +81,20 @@ class Servidor():
         self.tancaClient(client)
         self.broadcast(name + " ha abandonat el chat.")
 
-    def broadcast(self, msg, prefix="s-info:~: "):
+    def broadcast(self, msg, prefix="s-info:~:"):
         # funcio per enviar un missatge a totos els clients
         try:
-            for sock in self.clients:
-                self.enviar(sock, prefix + msg)
+            for soket_client in self.clients:
+                self.enviar(soket_client, prefix + msg)
+        except Exception:
+            print("s- Multi Client desconnectats.")
+
+    def sendCanal(self, msg, canal='general', prefix="s-info:~:"):
+        # funcio per enviar un missatge a totos els clients
+        try:
+            for soket_client in self.clients:
+                if self.canals[soket_client] == canal:
+                    self.enviar(soket_client, prefix + msg)
         except Exception:
             print("s- Multi Client desconnectats.")
 
@@ -102,6 +123,8 @@ class Servidor():
             text = input("")
             if text == "clients":
                 self.getListClients()
+            if text == "canals":
+                self.getListClientsCanals()
             if text == "stop":
                 self.stopServer()
         print("--- S: Terminal tancada ---")
@@ -110,3 +133,7 @@ class Servidor():
     def getListClients(self):
          for client in self.clients:
              print(self.clients[client])
+
+    def getListClientsCanals(self):
+         for client in self.clients:
+             print("%s canal: %s" % (self.clients[client], self.canals[client]))
