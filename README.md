@@ -2,6 +2,7 @@
 
 
 Per executar el projecte S'ha d'introduir la seguent comanda: python3.7 ./MainChat.py
+
 El projecte en divideix en 4 parts:
 
 Main: es el projecte principal el qual executa els threads del servidor i el client per tal de poder crear-ne tants com és vulguin.

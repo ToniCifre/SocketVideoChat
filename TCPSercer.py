@@ -71,8 +71,13 @@ class Servidor():
                                 self.canals[client] = tag[1]
                                 self.sendCanal("En %s s'ha unit al canal." % name, tag[1])
                         else:
-                            print("s canal: %s - %s: " % (self.canals[client], name), msg)
-                            self.sendCanal(msg, self.canals[client], name + ":~: ")
+                            tag = msg.split('->')
+                            if len(tag) >= 2:
+                                print("s M-Directe: %s -> %s: %s" % (name, tag[0], tag[1]))
+                                self.sendClient(tag[1], tag[0], name + "direct:~: ")
+                            else:
+                                print("s canal: %s - %s: " % (self.canals[client], name), msg)
+                                self.sendCanal(msg, self.canals[client], name + ":~: ")
                     except OSError:
                         break
         except OSError:
@@ -96,7 +101,15 @@ class Servidor():
                 if self.canals[soket_client] == canal:
                     self.enviar(soket_client, prefix + msg)
         except Exception:
-            print("s- Multi Client desconnectats.")
+            print("s- Multi send canal.")
+
+    def sendClient(self, msg, client, prefix="s-info:~:"):
+        # funcio per enviar un missatge a totos els clients
+        try:
+            soket_client = [key for (key, value) in self.clients.items() if value == client]
+            self.enviar(soket_client.__getitem__(0), prefix + msg)
+        except Exception:
+            print("s- send client.")
 
     def enviar(self, client, msg):
         try:
@@ -129,11 +142,12 @@ class Servidor():
                 self.stopServer()
         print("--- S: Terminal tancada ---")
 
-
     def getListClients(self):
-         for client in self.clients:
-             print(self.clients[client])
+        for client in self.clients:
+            print(self.clients[client])
 
     def getListClientsCanals(self):
-         for client in self.clients:
-             print("%s canal: %s" % (self.clients[client], self.canals[client]))
+        for canal in list(dict.fromkeys(list(self.canals.values()))):
+            print("\n--- Clients del canal %s --- " % canal)
+            for client in [self.clients[key] for (key, value) in self.canals.items() if value == canal]:
+                print("-%s" % client)

@@ -102,6 +102,11 @@ class Client:
             self.msg_list.insert(END, "S'ha creat un nou canal." + "\n")
         elif tag[0] == "quit":
             return False
+        elif tag[0][-6:] == "direct":
+            print(tag[0][:-6])
+            self.msg_list.insert(END, tag[0][:-6] + ':', tag[0])
+            self.msg_list.insert(END, tag[1] + "\n")
+            self.msg_list.tag_config(tag[0], foreground='blue')
         else:
             self.msg_list.insert(END, tag[0] + ':', tag[0])
             self.msg_list.insert(END, tag[1] + "\n")
