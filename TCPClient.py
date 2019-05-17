@@ -5,6 +5,7 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from Commons import *
 
+import VideoReciver
 
 class Client:
 
@@ -62,9 +63,9 @@ class Client:
 
     def connect(self):
         try:  # intentam connectar amb el servidor
-
+            self.ADDR = toastGetHostPort()
             self.client_socket = socket(AF_INET, SOCK_STREAM)
-            self.client_socket.connect(toastGetHostPort())
+            self.client_socket.connect(self.ADDR)
 
         except Exception:
             print("C: No sha pogut connectar amb el servidor")
@@ -107,6 +108,8 @@ class Client:
             self.msg_list.insert(END, tag[0][:-6] + ':', tag[0])
             self.msg_list.insert(END, tag[1] + "\n")
             self.msg_list.tag_config(tag[0], foreground='blue')
+        elif tag[0] == "video":
+            self.getSenderVideo(tag[0])
         else:
             self.msg_list.insert(END, tag[0] + ':', tag[0])
             self.msg_list.insert(END, tag[1] + "\n")
@@ -156,3 +159,8 @@ class Client:
     def exit(self):
         # self.finestra.quit()
         self.finestra.destroy()
+
+    # ------------------ Striming de Viceo -----------------
+    def getSenderVideo(self, video):
+        reciver = VideoReciver.VideoReciver([self.ADDR[0], 5050, 'toni.mp4'])
+        Thread(target=reciver.inici).start()

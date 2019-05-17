@@ -1,6 +1,7 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from Commons import *
+import VideoSender
 
 
 class Servidor():
@@ -59,6 +60,7 @@ class Servidor():
                 while True:
                     try:
                         msg = client.recv(1024).decode("utf-8")
+                        print(msg)
                         if len(msg) == 0:
                             break
                         tag = msg.split(':~:')
@@ -66,10 +68,14 @@ class Servidor():
                             if tag[0] == '_NEW_CANAL_':
                                 print("new Canal: %s" % tag[1])
                                 self.broadcast(tag[1], "new_canal:~:")
-                            elif tag[0 == '_SET_CANAL_']:
+                            elif tag[0] == '_SET_CANAL_':
                                 self.sendCanal("En %s s'ha cambiat al canal %s." % (name, tag[1]), self.canals[client])
                                 self.canals[client] = tag[1]
                                 self.sendCanal("En %s s'ha unit al canal." % name, tag[1])
+                            elif tag[0] == '_SET_VIDEO_':
+                                self.getSenderVideo()
+                                self.sendCanal(tag[1], self.canals[client], 'video:~:')
+
                         else:
                             tag = msg.split('->')
                             if len(tag) >= 2:
@@ -151,3 +157,8 @@ class Servidor():
             print("\n--- Clients del canal %s --- " % canal)
             for client in [self.clients[key] for (key, value) in self.canals.items() if value == canal]:
                 print("-%s" % client)
+
+    # ------------------ Striming de Viceo -----------------
+    def getSenderVideo(self):
+        sender = VideoSender.VideoSender([self.ADDR[0], 5050])
+        Thread(target=sender.inici).start()
