@@ -42,19 +42,21 @@ class Client:
         cambia_canal_button.grid(column=1, row=0, padx=5, pady=10)
         nou_canal_button = Button(self.finestra, text="Nou Canal", command=self.nouCanal, width=20)
         nou_canal_button.grid(column=2, row=0, padx=5, pady=10)
+        nou_canal_button = Button(self.finestra, text="Nou Canal", command=self.buttonNewVideo, width=20)
+        nou_canal_button.grid(column=3, row=0, padx=5, pady=10)
 
         # Scrollable box on es mostraras els missatges
         self.msg_list = scrolledtext.ScrolledText(self.finestra, state='disabled')
-        self.msg_list.grid(column=0, row=1, columnspan=3, padx=5, pady=5, sticky=NSEW)
+        self.msg_list.grid(column=0, row=1, columnspan=4, padx=5, pady=5, sticky=NSEW)
 
         # Field on s'escriuran els missatges que volgem enviar
         self.entry_field = Entry(self.finestra)
         self.entry_field.bind("<Return>", self.envia)  # funció que es realitzara si apretam la lletra enter
-        self.entry_field.grid(column=0, row=2, columnspan=2, sticky=EW, padx=5, pady=10)
+        self.entry_field.grid(column=0, row=2, columnspan=3, sticky=EW, padx=5, pady=10)
 
         # Boto per enviar el missatge
         envia_button = Button(self.finestra, text="envia", command=self.envia, width=20)
-        envia_button.grid(column=2, row=2, padx=5, pady=10)
+        envia_button.grid(column=3, row=2, padx=5, pady=10)
 
         # funcio que es fera si es tanca la finestra del client
         self.finestra.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -109,7 +111,7 @@ class Client:
             self.msg_list.insert(END, tag[1] + "\n")
             self.msg_list.tag_config(tag[0], foreground='blue')
         elif tag[0] == "video":
-            self.getSenderVideo(tag[0])
+            self.getSenderVideo(tag[1])
         else:
             self.msg_list.insert(END, tag[0] + ':', tag[0])
             self.msg_list.insert(END, tag[1] + "\n")
@@ -162,5 +164,9 @@ class Client:
 
     # ------------------ Striming de Viceo -----------------
     def getSenderVideo(self, video):
-        reciver = VideoReciver.VideoReciver([self.ADDR[0], 5050, 'toni.mp4'])
+        reciver = VideoReciver.VideoReciver([self.ADDR[0], 5050, video])
         Thread(target=reciver.inici).start()
+
+    def buttonNewVideo(self):
+        msg ='_SET_VIDEO_:~:' + toastNewVideo()
+        self.client_socket.send(msg.encode("utf-8"))

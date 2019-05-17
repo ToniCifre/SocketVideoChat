@@ -88,3 +88,33 @@ def toastNewCanal() -> StringVar:
     arrel.mainloop()
     global canal
     return canal
+
+def enviaVideo(finestra, c):
+    global canal
+    canal = c.get()
+    if len(canal) > 0:
+        finestra.quit()
+        finestra.destroy()
+    else:
+        mostrarToast("ERROR", "El Url no pot estar buit")
+
+
+def toastNewVideo() -> StringVar:
+    arrel = Tk()
+    arrel.resizable(width=False, height=False)
+    arrel.title("iniciar video")
+
+    # misatge
+    Label(arrel, text="videos disponibles: toni.mp4\nTambe es pot introduir una url\n-o webcam").grid(column=1, row=0, columnspan=3, sticky=E)
+    # video
+    Label(arrel, text="orl: ").grid(column=1, row=1, columnspan=3, sticky=E)
+    video_entry = Entry(arrel, width=35)
+    video_entry.grid(column=1, row=1, pady=10, padx=5, sticky=(W, E))
+
+    # Botón
+    Button(arrel, text="Crear", command=lambda: enviaVideo(arrel, video_entry))\
+        .grid(column=1, row=5,columnspan=8,sticky=(W, E))
+
+    arrel.mainloop()
+    global canal
+    return canal
