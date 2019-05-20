@@ -9,7 +9,7 @@ class VideoSender(object):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((connections[0], connections[1]))
-        self.server_socket.listen(5)
+        self.server_socket.listen(10)
 
         self.opened_cameras = {}
 

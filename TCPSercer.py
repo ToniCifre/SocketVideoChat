@@ -1,21 +1,19 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from Commons import *
 import VideoSender
 
 
 class Servidor():
 
     def __init__(self, param):
-        print(param)
         self.ADDR = param
         self.SERVER = socket(AF_INET, SOCK_STREAM)
-        self.clients = {}
-        self.canals = {}
-        self.listCanals = []
-        self.addresses = {}
+        self.clients = {}#Diccionari amb els sokets dels clients i els seus noms
+        self.canals = {}#Diccionari de canals amb els clients que formen part d'ell
+        self.listCanals = []#llista de canals diaponibes
+        self.addresses = {}#llista de addreces de cada servidor
         self.SERVER.bind(self.ADDR)
-        print(self.SERVER)
+        print('Nou Servidor: '+self.SERVER.__str__())
 
         self.isTerminal = True
 
@@ -48,48 +46,56 @@ class Servidor():
         print("s: Espera de nou clients tancat")
 
     def handle_client(self, client):
-        # Funcio que escolta a un unic client, Primes demana el nom i el guarda en un array ce clients amb el seu nom
+        # Funcio que escolta a un unic client, Primes demana el nom i el guarda en un array de clients amb el seu nom
         name = "quit"
         try:
             self.enviar(client, "s-info:~:Introdueix el teu nom per començar!")
+
             name = client.recv(1024).decode("utf8")
+            #Si en nom ja existeix en demana un altre fins que en trobi un que no existeix
+            while list(dict.fromkeys(list(self.clients.values()))).__contains__(name):
+                self.enviar(client,'s-info:~:Aquest no ja esta escollit, intenten un altre')
+                name = client.recv(1024).decode("utf8")
             if name != 'quit':
                 self.enviar(client,
                             's-info:~:Bones %s!, si vols sortir del char escriu {quit} o tanca la finestra.\nPer enviar un missatge privat a algun usuari, nomes has de introduir el seu nom segit d\'una fletxa \'->\' i el missatge' % name)
+
+                # Si ja existeixen canals extres s'envia una llista amb els canals extres
                 if len(self.listCanals) >= 1:
                     shit = ''
                     for canal in self.listCanals:
                         shit += canal + ','
                     self.enviar(client, 'set_canal:~:' + shit)
 
+                #S'envia un misatge a totos els clients informant que s'ha unit una nova persona
                 self.broadcast("%s s'ha unit al chat!" % name)
-                self.clients[client] = name
-                self.canals[client] = 'general'
-                while True:
+                self.clients[client] = name#safegeix el nou client al diccionari amb el seu soket relacionat amb el seu nom
+                self.canals[client] = 'general'#s'afegeix el client al canal inicial
+                while True:#esperam els missatges del client fins que es desconnecti
                     try:
-                        msg = client.recv(1024).decode("utf-8")
-                        if len(msg) == 0:
+                        msg = client.recv(1024).decode("utf-8")#decodificam el missatge rebut
+                        if len(msg) == 0:#Si el missatge es buit significa que el client s'ha desconnectat i tancam la connexió
                             break
-                        tag = msg.split(':~:')
+                        tag = msg.split(':~:')#semaram el misatge per el indicador
                         if len(tag) >= 2:
-                            if tag[0] == '_NEW_CANAL_':
+                            if tag[0] == '_NEW_CANAL_':#Cream un nou canal i enviam al nom a tots els clients
                                 print("new Canal: %s" % tag[1])
                                 self.listCanals.append(tag[1])
                                 self.broadcast(tag[1], "new_canal:~:")
-                            elif tag[0] == '_SET_CANAL_':
+                            elif tag[0] == '_SET_CANAL_':#Cambiam el client al canal especificat
                                 self.sendCanal("En %s s'ha cambiat al canal %s." % (name, tag[1]), self.canals[client])
                                 self.canals[client] = tag[1]
                                 self.sendCanal("En %s s'ha unit al canal." % name, tag[1])
-                            elif tag[0] == '_SET_VIDEO_':
+                            elif tag[0] == '_SET_VIDEO_':#Inicializam la clase per a fer streaming de video i informam a tots el clients del canal
                                 self.getSenderVideo()
                                 self.sendCanal(tag[1], self.canals[client], 'video:~:')
 
                         else:
-                            tag = msg.split('->')
-                            if len(tag) >= 2:
+                            tag = msg.split('->')#Separam el misatge per el indicador de misatge directe
+                            if len(tag) >= 2:#Enviam un misatge a una persona en concret
                                 print("s M-Directe: %s -> %s: %s" % (name, tag[0], tag[1]))
                                 self.sendClient(tag[1], tag[0], name + "direct:~: ")
-                            else:
+                            else:#enviam el missatge als clients que estan al mateix canal que el client emisor
                                 print("s canal: %s - %s: " % (self.canals[client], name), msg)
                                 self.sendCanal(msg, self.canals[client], name + ":~: ")
                     except OSError:
@@ -97,8 +103,8 @@ class Servidor():
         except OSError:
             print("s- %s desconnectat." % name)
 
-        self.tancaClient(client)
-        self.broadcast(name + " ha abandonat el chat.")
+        self.tancaClient(client)#tancam la connexió amb el client
+        self.broadcast(name + " ha abandonat el chat.")#informam a tots que el client s'ha desconnectat
 
     def broadcast(self, msg, prefix="s-info:~:"):
         # funcio per enviar un missatge a totos els clients
@@ -109,7 +115,7 @@ class Servidor():
             print("s- Multi Client desconnectats.")
 
     def sendCanal(self, msg, canal='general', prefix="s-info:~:"):
-        # funcio per enviar un missatge a totos els clients
+        # funcio per enviar un missatge a totos els clients d'un canal determinat
         try:
             for soket_client in self.clients:
                 if self.canals[soket_client] == canal:
@@ -118,23 +124,24 @@ class Servidor():
             print("s- Multi send canal.")
 
     def sendClient(self, msg, client, prefix="s-info:~:"):
-        # funcio per enviar un missatge a totos els clients
+        # funcio per enviar un misatge privat a un client a partir del seu nom
         try:
             soket_client = [key for (key, value) in self.clients.items() if value == client]
             self.enviar(soket_client.__getitem__(0), prefix + msg)
         except Exception:
             print("s- send client.")
 
-    def enviar(self, client, msg):
+    def enviar(self, client, msg):#Envia un misatge cosidicat a un determinat client
         try:
             client.send(msg.encode("utf-8"))
         except Exception:
             print("s e- Client ja tancat")
 
-    def tancaClient(self, client):
+    def tancaClient(self, client):#Tanca un determinat client i l'elimina de totes les llistes
         client.close()
         print("s: Client %s tancat" % self.clients[client])
         del self.clients[client]
+        del self.canals[client]
         del self.addresses[client]
 
     def stopServer(self):
@@ -158,21 +165,23 @@ class Servidor():
                 self.stopServer()
         print("--- S: Terminal tancada ---")
 
-    def getListClients(self):
+    def getListClients(self):#Inprimeix una llista dels clients connectats
         for client in self.clients:
-            print(self.clients[client])
+            print("%s: %s" %(self.clients[client], self.addresses[client]))
 
-    def getListClientsCanals(self):
+    def getListClientsCanals(self):#Inprimeix una llista de totos els clients que hi ha dintre de cada canal
         for canal in list(dict.fromkeys(list(self.canals.values()))):
             print("\n--- Clients del canal %s --- " % canal)
             for client in [self.clients[key] for (key, value) in self.canals.items() if value == canal]:
                 print("-%s" % client)
 
-    def getListCanals(self):
+    def getListCanals(self):#Inprimeix una llista dels canals dicponibles
+        print("--- LLISTA DE CANALS ---")
+        print("general")
         for canal in self.listCanals:
-            print("\n"+canal)
+            print(canal)
 
     # ------------------ Striming de Viceo -----------------
-    def getSenderVideo(self):
+    def getSenderVideo(self):#Inicialitza un nou thread per a poder realitzar un streaming
         sender = VideoSender.VideoSender([self.ADDR[0], 5050])
         Thread(target=sender.inici).start()

@@ -2,26 +2,28 @@
 import socket
 import cv2
 import numpy
-import random
 import sys
 
 class VideoReciver(object):
-    def __init__(self, connections):
+    def __init__(sel):
+        pass
+
+    def inici(self, connections):
         self.host = connections[0]
         self.port = connections[1]
-        self.cam_url = connections[2]  #'webcam'# 'http://www.html5videoplayer.net/videos/toystory.mp4'
+        self.cam_url = connections[2]  # 'webcam'# 'http://www.html5videoplayer.net/videos/toystory.mp4'
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.client_socket.connect((self.host, self.port))
-        self.name = str(random.random())
+        self.name = connections[2]
 
         self.run = True
 
         self.client_socket.send(str.encode(self.cam_url))
 
-    def inici(self):
-        while 1:
+        while self.run:
             self.rcv()
+        cv2.destroyAllWindows()
 
     def rcv(self):
         data = b''
@@ -36,7 +38,7 @@ class VideoReciver(object):
                     break
                 data += r
             except Exception as e:
-                print(e)
+                self.run = False
                 continue
         try:
             nparr = numpy.fromstring(data, numpy.uint8)
@@ -51,9 +53,10 @@ class VideoReciver(object):
                         self.client_socket.close()
                         sys.exit()
                 except:
+                    self.run=False
                     self.client_socket.close()
-                    exit(0)
         except Exception as e:
+            self.run = False
             print(e)
 
     def stopVideo(self):

@@ -4,9 +4,7 @@ import socket
 class Connection(object):
 
     def __init__(self, connections):
-        print(connections)
         self.url = connections[1].decode("utf-8")
-        print(self.url)
         self.socket = []
         self.socket.append(connections[0])
         self.connections = connections
