@@ -42,7 +42,7 @@ class Client:
         cambia_canal_button.grid(column=1, row=0, padx=5, pady=10)
         nou_canal_button = Button(self.finestra, text="Nou Canal", command=self.nouCanal, width=20)
         nou_canal_button.grid(column=2, row=0, padx=5, pady=10)
-        nou_canal_button = Button(self.finestra, text="Nou Canal", command=self.buttonNewVideo, width=20)
+        nou_canal_button = Button(self.finestra, text="Iniciar Video", command=self.buttonNewVideo, width=20)
         nou_canal_button.grid(column=3, row=0, padx=5, pady=10)
 
         # Scrollable box on es mostraras els missatges
@@ -105,6 +105,16 @@ class Client:
             self.msg_list.insert(END, "S'ha creat un nou canal." + "\n")
         elif tag[0] == "quit":
             return False
+        elif tag[0] == "set_canal":
+            canals = tag[1].split(',')
+            for canal in canals:
+                if canal != '':
+                    self.canals.append(canal)
+            menu = self.drop_down["menu"]
+            menu.delete(0, "end")
+            for string in self.canals:
+                menu.add_command(label=string,
+                                 command=lambda value=string: self.canal.set(value) and self.setCanal)
         elif tag[0][-6:] == "direct":
             print(tag[0][:-6])
             self.msg_list.insert(END, tag[0][:-6] + ':', tag[0])

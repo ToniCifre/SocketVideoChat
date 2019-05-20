@@ -12,8 +12,10 @@ class Servidor():
         self.SERVER = socket(AF_INET, SOCK_STREAM)
         self.clients = {}
         self.canals = {}
+        self.listCanals = []
         self.addresses = {}
         self.SERVER.bind(self.ADDR)
+        print(self.SERVER)
 
         self.isTerminal = True
 
@@ -53,20 +55,26 @@ class Servidor():
             name = client.recv(1024).decode("utf8")
             if name != 'quit':
                 self.enviar(client,
-                            's-info:~:Bones %s!, si vols sortir del char escriu {quit} o talca la finestra.' % name)
+                            's-info:~:Bones %s!, si vols sortir del char escriu {quit} o tanca la finestra.\nPer enviar un missatge privat a algun usuari, nomes has de introduir el seu nom segit d\'una fletxa \'->\' i el missatge' % name)
+                if len(self.listCanals) >= 1:
+                    shit = ''
+                    for canal in self.listCanals:
+                        shit += canal + ','
+                    self.enviar(client, 'set_canal:~:' + shit)
+
                 self.broadcast("%s s'ha unit al chat!" % name)
                 self.clients[client] = name
                 self.canals[client] = 'general'
                 while True:
                     try:
                         msg = client.recv(1024).decode("utf-8")
-                        print(msg)
                         if len(msg) == 0:
                             break
                         tag = msg.split(':~:')
                         if len(tag) >= 2:
                             if tag[0] == '_NEW_CANAL_':
                                 print("new Canal: %s" % tag[1])
+                                self.listCanals.append(tag[1])
                                 self.broadcast(tag[1], "new_canal:~:")
                             elif tag[0] == '_SET_CANAL_':
                                 self.sendCanal("En %s s'ha cambiat al canal %s." % (name, tag[1]), self.canals[client])
@@ -142,8 +150,10 @@ class Servidor():
             text = input("")
             if text == "clients":
                 self.getListClients()
-            if text == "canals":
+            if text == "canalsclients":
                 self.getListClientsCanals()
+            if text == "canals":
+                self.getListCanals()
             if text == "stop":
                 self.stopServer()
         print("--- S: Terminal tancada ---")
@@ -157,6 +167,10 @@ class Servidor():
             print("\n--- Clients del canal %s --- " % canal)
             for client in [self.clients[key] for (key, value) in self.canals.items() if value == canal]:
                 print("-%s" % client)
+
+    def getListCanals(self):
+        for canal in self.listCanals:
+            print("\n"+canal)
 
     # ------------------ Striming de Viceo -----------------
     def getSenderVideo(self):

@@ -15,6 +15,8 @@ class VideoReciver(object):
         self.client_socket.connect((self.host, self.port))
         self.name = str(random.random())
 
+        self.run = True
+
         self.client_socket.send(str.encode(self.cam_url))
 
     def inici(self):
@@ -23,7 +25,7 @@ class VideoReciver(object):
 
     def rcv(self):
         data = b''
-        while 1:
+        while self.run:
             try:
                 r = self.client_socket.recv(90456)
                 if len(r) == 0:
@@ -53,3 +55,6 @@ class VideoReciver(object):
                     exit(0)
         except Exception as e:
             print(e)
+
+    def stopVideo(self):
+        self.run = False

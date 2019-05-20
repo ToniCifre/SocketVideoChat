@@ -18,20 +18,16 @@ def enviaHostPort(finestra, h, p):
     global host
     global port
     host = h.get()
-    if len(host) > 0:
-        try:
-            x = int(p.get())
-            port = x
-            if port < 1000:
-                mostrarToast("ERROR", "El port ha de tenir 4 digits")
-            else:
-                finestra.quit()
-                finestra.destroy()
-        except:
-            mostrarToast("ERROR", "El port ha de ser un enter")
-    else:
-        mostrarToast("ERROR", "El host no pot estar buit")
-
+    try:
+        x = int(p.get())
+        port = x
+        if port < 1000:
+            mostrarToast("ERROR", "El port ha de tenir 4 digits")
+        else:
+            finestra.quit()
+            finestra.destroy()
+    except:
+        mostrarToast("ERROR", "El port ha de ser un enter")
 
 def toastGetHostPort():
     arrel = Tk()
@@ -74,7 +70,7 @@ def enviaCanal(finestra, c):
 def toastNewCanal() -> StringVar:
     arrel = Tk()
     arrel.resizable(width=False, height=False)
-    arrel.title("Init Servidor")
+    arrel.title("NOU CANAL")
 
     # CANAL
     Label(arrel, text="Nou canal: ").grid(column=1, row=1, columnspan=3, sticky=E)
@@ -105,14 +101,14 @@ def toastNewVideo() -> StringVar:
     arrel.title("iniciar video")
 
     # misatge
-    Label(arrel, text="videos disponibles: toni.mp4\nTambe es pot introduir una url\n-o webcam").grid(column=1, row=0, columnspan=3, sticky=E)
+    Label(arrel, text="videos disponibles: toni.mp4\nTambe es pot introduir una url\nPer a veure la webcam del server introdueix webcam").grid(column=1, row=0, columnspan=3, sticky=E)
     # video
-    Label(arrel, text="orl: ").grid(column=1, row=1, columnspan=3, sticky=E)
+    Label(arrel, text="URL: ").grid(column=1, row=1, columnspan=3, sticky=E)
     video_entry = Entry(arrel, width=35)
     video_entry.grid(column=1, row=1, pady=10, padx=5, sticky=(W, E))
 
     # Botón
-    Button(arrel, text="Crear", command=lambda: enviaVideo(arrel, video_entry))\
+    Button(arrel, text="Inicar", command=lambda: enviaVideo(arrel, video_entry))\
         .grid(column=1, row=5,columnspan=8,sticky=(W, E))
 
     arrel.mainloop()
