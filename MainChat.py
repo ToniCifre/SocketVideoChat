@@ -7,6 +7,8 @@ import TCPSercer
 
 class Main:
 
+    # El Main es el programa principal encarregar de gestionar el servidor i els clients, a partir d'ell es poden crear
+    # tants servidors com clients es desitgin
     def __init__(self):
         #Guarda tots els servidors que s'executen
         self.servidors = {}
@@ -43,7 +45,7 @@ class Main:
     def newClient(self, event=None):
         Thread(target=TCPClient.Client()).start()
 
-    #tanca tots els servidors
+    #tanca tots els servidors amb els seus clients
     def on_closing(self, event=None):
         for server in self.servidors:
             self.servidors[server].stopServer()

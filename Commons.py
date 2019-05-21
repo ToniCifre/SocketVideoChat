@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
+# mostra el misatge enviat amb un toast de forma visual
 def mostrarToast(titol, msg):
     popup = Tk()
     popup.title(titol)
@@ -101,7 +102,8 @@ def toastNewVideo() -> StringVar:
     arrel.title("iniciar video")
 
     # misatge
-    Label(arrel, text="videos disponibles: toni.mp4\nTambe es pot introduir una url\nPer a veure la webcam del server introdueix webcam").grid(column=1, row=0, columnspan=3, sticky=E)
+    Label(arrel, text="videos disponibles: toni.mp4\nTambe es pot introduir una url\nPer a veure la webcam del server"
+                      " introdueix webcam").grid(column=1, row=0, columnspan=3, sticky=E)
     # video
     Label(arrel, text="URL: ").grid(column=1, row=1, columnspan=3, sticky=E)
     video_entry = Entry(arrel, width=35)

@@ -9,14 +9,14 @@ import VideoReciver
 
 class Client:
 
+    # inicialitzacio del client, es crea la finestra del client i s'executa el thread per escoltar els missatges
+    # que envia el servidor
     def __init__(self):
-        # inicialitzacio del client, es crea la finestra del client i s'executa el thread per escoltar els missatges
-        # que envia el servidor
         self.isVideo = False
         self.inici()
 
+    #Crida a la funció per a connectarse al soket desitjat
     def inici(self):
-        #Crida a la funció per a connectarse al soket desitjat
         conec = self.connect()
 
         #inicialitza la llibreria visual
@@ -34,9 +34,8 @@ class Client:
         self.finestra.mainloop()
         print("------- Class Client finalitzada ----------")
 
+    #Inicialització de la finestra visual
     def initTk(self):
-        #Inicialització de la finestra visual
-
         tkinter.NoDefaultRoot()
         self.finestra = Tk()
         self.finestra.title("Chat")
@@ -76,6 +75,8 @@ class Client:
         self.finestra.grid_columnconfigure(0, weight=1)
         self.finestra.grid_rowconfigure(0, weight=1)
 
+    # Demana el host i el port al client i s'intenta connectar al socket indicat, si no es posible connectarse es torna
+    # False
     def connect(self):
         try:  # intentam connectar amb el servidor
             self.ADDR = toastGetHostPort()#Finestra visual per a poder escollir el host i el port
@@ -87,8 +88,8 @@ class Client:
             return FALSE
         return TRUE
 
+    #Thread que es dedica a escoltar al servidor i decodificar la informació que li arriba des del servidor.
     def handleMissatge(self):
-        #Thread que es dedica a escoltar al servidor i decodificar la informació que li arriba des del servidor.
         try:
             while self.get_missatge():
                 pass
@@ -99,6 +100,8 @@ class Client:
 
         print("C: Exit handleMissatge")
 
+    # El misatge que es rep des del servidor identificat a partir de un tag inicial el qual ens infica la acció que sha
+    # de realitzar.
     def get_missatge(self):
         msg = self.client_socket.recv(1024).decode("utf8")#espera un missatge del servidor i decodifica
         if len(msg) == 0:#si el misatge esta buit significa que la connexió sha perdut i es tanca el soket
@@ -145,8 +148,9 @@ class Client:
         self.msg_list.configure(state='disabled')# es desactica l'edició del msg-List
         return True
 
+    # Envia un misatge amb el seu tag al servidor. Si el misatge que es vol enviar es 'quit' es tancara la connexió.
     def envia(self, event=None):
-        try:  # Funció per enviar un missatge al servidor
+        try:
             msg = self.entry_field.get()
             self.entry_field.delete(0, END)
             if msg == "quit":#si el misatge es quit es tanca la connexió amb el servidor
@@ -156,16 +160,19 @@ class Client:
         except OSError:
             print("C: ++ Error Envia")
 
-    def nouCanal(self):#S'envia el nom del nou canal al servidor
+    # Envia un misatge al servidor amb la patició de crear un nou canal
+    def nouCanal(self):
         msg = "_NEW_CANAL_:~:%s" % toastNewCanal()
         self.client_socket.send(msg.encode("utf-8"))
 
-    def setCanal(self):#S'envia el canal escollit al servidor per a poder formar part d'ell
+    # Envia un misatge al servidor amb la petició de cambiar al canal indicat.
+    def setCanal(self):
         msg = "_SET_CANAL_:~:%s" % self.canal.get()
         self.client_socket.send(msg.encode("utf-8"))
 
+    # funcio per mostrar els missatge d'error en vermell per el Box
     def error_mesage(self, msg):
-        try:  # funcio per mostrar algun missatge d'error vermell per el Box
+        try:
             self.msg_list.configure(state='normal')
             self.msg_list.insert(END, msg, "error")
             self.msg_list.tag_config("error", foreground='red')
@@ -173,16 +180,19 @@ class Client:
         except Exception:
             print("C: ++Error erro_mesage")
 
+    # Al apretam el boto per tancar la finestra es crida aquesta funció la qual informa al servidor i es tanca
+    # la finestra i la connexió
     def on_closing(self, event=None):
-        # si apretam el boto per tancar la finestra informam al servidor i es tanca la finestra
         self.tancarconnexio()
         self.exit()
 
+    # Tanca la connexió i mostra un misatge per la finestra visual
     def tancarconnexio(self):#tanca la connexio mab el soket del servidor
         self.error_mesage("S'ha tancat la connexió amb el servidor")
         self.client_socket.close()
         print("C: Soket Client tancat")
 
+    # Tanca la finestra visual
     def exit(self):#tanca la finestra visual
         # self.finestra.quit()
         self.finestra.destroy()
