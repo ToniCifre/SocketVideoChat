@@ -17,6 +17,7 @@ class Servidor():
         self.SERVER.bind(self.ADDR)
         print('Nou Servidor: '+self.SERVER.__str__())
 
+        self.isVideo = False
         self.isTerminal = True#variable que ens indica si el terminal ha des segir esperant
 
     # S'encarrega de llençar el servidor des del MainChat amb el seu propi thread.
@@ -90,7 +91,7 @@ class Servidor():
                         tag = msg.split(':~:')#semaram el misatge per el indicador
                         if len(tag) >= 2:
                             if tag[0] == '_NEW_CANAL_':#Cream un nou canal i enviam al nom a tots els clients
-                                print("new Canal: %s" % tag[1])
+                                print("s nou Canal creat: %s" % tag[1])
                                 self.listCanals.append(tag[1])
                                 self.broadcast(tag[1], "new_canal:~:")
                             elif tag[0] == '_SET_CANAL_':#Cambiam el client al canal especificat
@@ -98,7 +99,9 @@ class Servidor():
                                 self.canals[client] = tag[1]
                                 self.sendCanal("En %s s'ha unit al canal." % name, tag[1])
                             elif tag[0] == '_SET_VIDEO_':#Inicializam la clase per a fer streaming de video i informam a tots el clients del canal
-                                self.getSenderVideo()
+                                if not self.isVideo:
+                                    self.isVideo = True
+                                    self.getSenderVideo()
                                 self.sendCanal(tag[1], self.canals[client], 'video:~:')
 
                         else:
@@ -149,7 +152,7 @@ class Servidor():
         try:
             client.send(msg.encode("utf-8"))
         except Exception:
-            print("s e- Client ja tancat")
+            pass# print("s e- Client ja tancat")
 
     # Tanca la connexió i elimina el usuari desconectat de les llistes
     def tancaClient(self, client):#Tanca un determinat client i l'elimina de totes les llistes

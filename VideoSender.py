@@ -30,11 +30,5 @@ class VideoSender(object):
                     self.opened_cameras[cam_url].addConnection(client_socket)
 
             except socket.timeout:
-                continue
-            except KeyboardInterrupt:
-                self.server_socket.close()
-
-                exit(0)
-
-    def signal_handler(self, signal=None, frame=None):
-        exit(0)
+                break
+        self.server_socket.close()

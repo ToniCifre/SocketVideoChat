@@ -2,6 +2,7 @@
 import socket
 import cv2
 import numpy
+import random
 import sys
 
 class VideoReciver(object):
@@ -15,7 +16,7 @@ class VideoReciver(object):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.client_socket.connect((self.host, self.port))
-        self.name = connections[2]
+        self.name = str(random.random())
 
         self.run = True
 
@@ -23,7 +24,8 @@ class VideoReciver(object):
 
         while self.run:
             self.rcv()
-        cv2.destroyAllWindows()
+        self.client_socket.close()
+        sys.exit()
 
     def rcv(self):
         data = b''
@@ -38,26 +40,22 @@ class VideoReciver(object):
                     break
                 data += r
             except Exception as e:
-                self.run = False
+                print(e)
                 continue
-        try:
-            nparr = numpy.fromstring(data, numpy.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-            if type(frame) is type(None):
-                pass
-            else:
-                try:
-                    cv2.imshow(self.name,frame)
-                    if cv2.waitKey(10) == ord('q'):
-                        self.client_socket.close()
-                        sys.exit()
-                except:
-                    self.run=False
+        nparr = numpy.fromstring(data, numpy.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if type(frame) is type(None):
+            pass
+        else:
+            try:
+                cv2.imshow(self.name, frame)
+                if cv2.waitKey(10) == ord('q'):
                     self.client_socket.close()
-        except Exception as e:
-            self.run = False
-            print(e)
+                    sys.exit()
+            except:
+                self.client_socket.close()
+                exit(0)
+
 
     def stopVideo(self):
         self.run = False

@@ -96,7 +96,8 @@ class Client:
             self.tancarconnexio()#Funció que tanca la conexio amb el servidor
 
         except Exception:
-            print("C: ++ Error handleMissatge")
+            pass
+            # print("C: ++ Error handleMissatge")
 
         print("C: Exit handleMissatge")
 
@@ -134,7 +135,6 @@ class Client:
                 menu.add_command(label=string,
                                  command=lambda value=string: self.canal.set(value) and self.setCanal)
         elif tag[0][-6:] == "direct":#S'introdueix el tag del emisor en blau per indicar que es un misatge privat
-            print(tag[0][:-6])
             self.msg_list.insert(END, tag[0][:-6] + ':', tag[0])
             self.msg_list.insert(END, tag[1] + "\n")
             self.msg_list.tag_config(tag[0], foreground='blue')
@@ -158,7 +158,8 @@ class Client:
             else:#sino es codifica i s'envia
                 self.client_socket.send(msg.encode("utf-8"))
         except OSError:
-            print("C: ++ Error Envia")
+            pass
+            # print("C: ++ Error Envia")
 
     # Envia un misatge al servidor amb la patició de crear un nou canal
     def nouCanal(self):

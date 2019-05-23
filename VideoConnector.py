@@ -32,7 +32,7 @@ class Connection(object):
                 data = cv2.imencode('.jpg', frame)[1].tostring()
                 if len(self.socket):
                     for c in self.socket:
-                        self.send(c,data)
+                        self.send(c, data)
                 else:
                     self.connection.release()
                     del self.opened_cameras[self.connections[1]]
@@ -42,9 +42,9 @@ class Connection(object):
             except KeyboardInterrupt:
                 self.signal_handler()
 
-    def send(self,c, data):
+    def send(self, c, data):
         try:
             c.send(data)
-            c.send(b"END!") # send param to end loop in client
+            c.send(b"END!")  # send param to end loop in client
         except socket.error:
             self.socket.remove(c)
