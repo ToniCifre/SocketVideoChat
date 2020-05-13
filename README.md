@@ -1,15 +1,15 @@
-# **README**
+# SocketVideoChat
+
+Chat multicanal de texto con retransmisión de video, tanto webcam como archivo de video, con la librería visual Tkintel.
 
 
-Per executar el projecte S'ha d'introduir la seguent comanda: python3.7 ./MainChat.py
+## Servidor
 
-El projecte en divideix en 4 parts:
+Servidor dedicado a escuchar todos los clientes y manejar los canales creados y mensajes de los clientes. Permite enviar mensajes privados, dentro de un canal y broadcast en todos los canales.  
+  
+Puede administrar y expulsar a los clientes y canales a través del terminal.
 
-Main: es el projecte principal el qual executa els threads del servidor i el client per tal de poder crear-ne tants com és vulguin.
-
-Servidor: encarregat de crear una connexió de fins a 10 clients i de tancar totes les connexions amb els clients una vegada es tanca l'aplicació.
-també disposa d'un thread que espera entrades del terminal per a llistar els clients connectats i aturar el servidor
-
-Client: es connecta amb el servidor al port i host donats.
-
-Commons: disposa d'un parell de funcions les quals són usades per totes les classes anteriors
+## Cliente
+Interfaz visual de chat de texto con la posibilidad de crear canales de comunicación específicos.  
+  
+Nos permite crear una sesión de video para que los participantes del canal se puedan unir y ver un video (tanto de YouTube como un archivo local) todos a la vez. También se pueden crear videollamadas entre un conjunto de clientes al mismo tiempo.
